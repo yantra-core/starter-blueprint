@@ -21563,7 +21563,6 @@ var Block = /*#__PURE__*/function () {
         if (entityA.destroyed || entityB.destroyed) {
           return;
         }
-        console.log('destroyed the bullet', entityB, 'hit the block', entityA);
         this.game.removeEntity(entityIdB);
         if (entityA.width * entityA.height <= this.MIN_BLOCK_SIZE || entityA.splits >= Block.MAX_SPLITS) {
           this.game.removeEntity(entityIdA);
@@ -21880,7 +21879,7 @@ var Bullet = /*#__PURE__*/function () {
         var entityIdB = bodyB.myEntityId;
         var entityA = this.game.getEntity(entityIdA);
         var entityB = this.game.getEntity(entityIdB);
-        console.log('bullet collision', entityIdA, entityIdB, entityA, entityB);
+
         // entityA is player ( for now )
         // console.log('types', entityA.type, entityB.type);
         if (!entityA || !entityB) {
@@ -25367,7 +25366,9 @@ var ThreeDimensionalInputStrategy = /*#__PURE__*/function () {
       if (actions.includes('ROLL_RIGHT')) entityMovementSystem.rotate(entityId, 0, 0, rotateSpeed);
 
       // Firing mechanic can remain the same as in 2D
-      if (actions.includes('FIRE_BULLET')) game.getSystem('bullet').fireBullet(entityId);
+      if (game.systems.bullet) {
+        if (actions.includes('FIRE_BULLET')) game.getSystem('bullet').fireBullet(entityId);
+      }
     }
   }]);
   return ThreeDimensionalInputStrategy;
@@ -27826,7 +27827,7 @@ var Editor = /*#__PURE__*/function () {
       }); // Add click handler
       $dropdownContent.append($viewSource);
       var $deployWorld = $('<a>', {
-        href: 'https://yantra.gg/deploy',
+        href: 'https://yantra.gg/game-dev-quickstart/deploy-world',
         text: 'Deploy to Yantra Cloud',
         target: '_blank'
       });
