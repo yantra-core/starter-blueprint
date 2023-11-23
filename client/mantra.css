@@ -1,0 +1,283 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* InputLegend.js Plugin */
+
+#controlsView {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background-color: white;
+  border: 1px solid #dddddd;
+  padding: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#controlsView .closeButton {
+  position: absolute;
+  top: 5px;
+  left: 320px;
+  padding: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#controlsView .closeButton:hover {
+}
+
+#controlsTable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#controlsTable th,
+#controlsTable td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 12px;
+  font-size: 24px;
+}
+
+#controlsTable th {
+  background-color: #f2f2f2;
+}
+
+
+#pluginView {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 50px; /* Default height */
+  background-color: white;
+  border-top: 1px solid black;
+  transition: height 0.3s ease-in-out;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+#pluginView.expanded {
+  height: 20vh; /* Expanded height */
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Responsive Design Adjustments */
+@media (max-width: 768px) {
+  #pluginView {
+    width: 40%; /* Wider on smaller screens */
+  }
+}
+
+#pluginContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+}
+
+
+.pluginCard {
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: box-shadow 0.3s ease-in-out;
+  cursor: pointer;
+  flex-basis: calc(100% / 12 - 20px); /* Adjust according to your design preference */
+
+}
+
+.pluginCard:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.pluginCard.active {
+  background-color: #e0f7fa; /* Light blue background for active plugins */
+}
+
+.pluginName {
+  font-size: 14px;
+  font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.closeButton {
+  cursor: pointer;
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  font-weight: bold;
+}
+
+/* Scrollbar Styles */
+#pluginView::-webkit-scrollbar {
+  width: 6px;
+}
+
+#pluginView::-webkit-scrollbar-thumb {
+  background: #888; 
+  border-radius: 10px;
+}
+
+#pluginView::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}
+
+
+.toolbarHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.arrowIndicator {
+  display: inline-block;
+  margin-left: 5px;
+  user-select: none; /* Prevent text selection */
+}
+
+
+/* YantraGUI */
+
+#logContainer {
+  width: 60%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 16vh;
+}
+
+#logTextArea {
+  width: 100%;
+  height: 400px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+#metadataContainer {
+  width: 35%;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* Editor toolbar */
+/* Editor toolbar */
+.editor-toolbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #333; /* Dark background for a slick look */
+  display: flex;
+  justify-content: start;
+  padding: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* subtle shadow for depth */
+}
+
+.menu {
+  position: relative; /* Set relative positioning for menu items */
+}
+
+.menu button {
+  margin-right: 10px;
+  background-color: #555; /* Dark button color */
+  color: white; /* Light text color for contrast */
+  border: none;
+  padding: 10px 15px;
+  text-transform: uppercase; /* Makes text uppercase for a more toolbar-like appearance */
+  font-size: 14px;
+  border-radius: 4px; /* Rounded corners */
+  transition: background-color 0.3s; /* Smooth transition for hover effect */
+  cursor: pointer; /* Changes cursor to indicate button */
+}
+
+.menu button:hover {
+  background-color: #666; /* Slightly lighter on hover for interactive effect */
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f9f9f9;
+  min-width: 300px;
+  min-height: 130px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+  top: 100%; /* Position dropdown directly below the menu item */
+  left: 0; /* Align dropdown left edge with menu item left edge */
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {background-color: #f1f1f1;}
+
+.show {display: block;}
+
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  display: flex; /* Use flexbox */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 75%; /* 75% of the screen width */
+  max-width: 1000px; /* Maximum width */
+  box-sizing: border-box; /* Include padding and border in the width */
+}
+
+/* The Close Button */
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+pre {
+  white-space: pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  word-wrap: break-word;
+}
