@@ -1,92 +1,5 @@
 const YANTRA = {};
 const PING_CHECK_TIMEOUT = 120 * 1000;
-YANTRA.serverDiscovery = {
-  etherspaceEndpoint: 'https://etherspace.ayyo.gg',
-  pollIntervalMs: 500,
-  maxPollCount: 99999,
-  pollCount: 0,
-  isPolling: false,
-  broadcastMessage: function(event, message){
-    let emitter = null;
-    if (typeof window.game !== 'undefined') {
-      emitter = window.game;
-    }
-    if (emitter) {
-      emitter.emit(event, message);
-    }
-  },
-
-  async findBestServers(region, mode, owner, settings) {
-    const url = `${this.etherspaceEndpoint}/api/v2/autoscale/${region}/${owner}/${mode}`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(settings)
-    });
-    return response.json();
-  },
-
-  async pollForServer(region, mode, owner, settings) {
-    if (this.pollCount > this.maxPollCount) {
-      throw new Error('Max polling attempts reached');
-    }
-    this.broadcastMessage('server::discovery::polling', { message: 'Server is starting: ' + region + ' ' + owner + '/' + mode});
-    console.log("pollForServer");
-    this.pollCount++;
-    this.isPolling = true;
-
-    try {
-      const serverInfo = await this.findBestServers(region, mode, owner, settings);
-      if (Array.isArray(serverInfo) && serverInfo.length && serverInfo[0].processInfo) {
-        console.log("got back at least one server with process info", serverInfo);
-        this.broadcastMessage({ message: 'found server', serverInfo });
-        this.broadcastMessage('server::discovery::best-server', { message: 'Found best server', data: serverInfo });
-
-        this.isPolling = false;
-        return serverInfo;
-      } else {
-        console.log('server not ready', serverInfo);
-        // Wrap the recursive call in a new Promise
-        return new Promise(resolve => {
-          setTimeout(async () => {
-            resolve(await this.pollForServer(region, mode, owner, settings));
-          }, this.pollIntervalMs);
-        });
-      }
-    } catch (error) {
-      console.error('Error in polling for server:', error);
-      this.isPolling = false;
-      throw error;
-    }
-  },
-
-  async connectToBestServer(gameConfig) {
-    console.log("gameConfig", gameConfig)
-    this.pollCount = 0;
-    const region = gameConfig.region || 'defaultRegion';
-    const mode = gameConfig.world || 'defaultWorld';
-    const owner = gameConfig.owner || 'defaultOwner';
-    const settings = gameConfig.settings || {};
-
-    try {
-      const bestServer = await this.pollForServer(region, mode, owner, settings);
-      return bestServer;
-    } catch (error) {
-      console.error('Failed to connect to the best server:', error);
-      throw error;
-    }
-  },
-
-  clearLocalStorage() {
-    localStorage.removeItem('yantra_region');
-    localStorage.removeItem('yantra_ip');
-  }
-};
-
-window.onerror = function (err) {
-  //alert(err);
-  console.log('warning: uncaught error', err)
-};
 
 let awsRegionMapping = {
   "us-east-1": "Washington_DC",
@@ -102,7 +15,6 @@ let awsRegionMapping = {
   // "eu-north-1": "Stockholm",
   "sa-east-1": "Sao_Paulo",
 };
-
 
 let updateRegionList = [
   {
@@ -157,6 +69,93 @@ let updateRegionList = [
   }
 ];
 
+YANTRA.serverDiscovery = {
+  etherspaceEndpoint: 'https://etherspace.ayyo.gg',
+  pollIntervalMs: 500,
+  maxPollCount: 99999,
+  pollCount: 0,
+  regionList: updateRegionList,
+  isPolling: false,
+  broadcastMessage: function(event, message){
+    let emitter = null;
+    if (typeof window.game !== 'undefined') {
+      emitter = window.game;
+    }
+    if (emitter) {
+      emitter.emit(event, message);
+    }
+  },
+
+  async findBestServers(region, mode, owner, settings) {
+    const url = `${this.etherspaceEndpoint}/api/v2/autoscale/${region}/${owner}/${mode}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings)
+    });
+    return response.json();
+  },
+
+  async pollForServer(region, mode, owner, settings) {
+    if (this.pollCount > this.maxPollCount) {
+      throw new Error('Max polling attempts reached');
+    }
+    this.broadcastMessage('server::discovery::polling', { message: 'Server is starting: ' + region + ' ' + owner + '/' + mode});
+    console.log("pollForServer");
+    this.pollCount++;
+    this.isPolling = true;
+
+    try {
+      const serverInfo = await this.findBestServers(region, mode, owner, settings);
+      if (Array.isArray(serverInfo) && serverInfo.length && serverInfo[0].processInfo) {
+        console.log("got back at least one server with process info", serverInfo);
+        this.broadcastMessage('server::discovery::best-server', { message: 'Found best server', data: serverInfo });
+        this.isPolling = false;
+        return serverInfo;
+      } else {
+        console.log('server not ready', serverInfo);
+        // Wrap the recursive call in a new Promise
+        return new Promise(resolve => {
+          setTimeout(async () => {
+            resolve(await this.pollForServer(region, mode, owner, settings));
+          }, this.pollIntervalMs);
+        });
+      }
+    } catch (error) {
+      console.error('Error in polling for server:', error);
+      this.isPolling = false;
+      throw error;
+    }
+  },
+
+  async connectToBestServer(gameConfig) {
+    console.log("gameConfig", gameConfig)
+    this.pollCount = 0;
+    const region = gameConfig.region || 'defaultRegion';
+    const mode = gameConfig.world || 'my-awesome-world';
+    const owner = gameConfig.owner || 'defaultOwner';
+    const settings = gameConfig.settings || {};
+
+    try {
+      const bestServer = await this.pollForServer(region, mode, owner, settings);
+      return bestServer;
+    } catch (error) {
+      console.error('Failed to connect to the best server:', error);
+      throw error;
+    }
+  },
+
+  clearLocalStorage() {
+    localStorage.removeItem('yantra_region');
+    localStorage.removeItem('yantra_ip');
+  }
+};
+
+window.onerror = function (err) {
+  //alert(err);
+  console.log('warning: uncaught error', err)
+};
+
 function getHostPort(region) {
   // console.log('getting region', region)
   const regionInfo = updateRegionList.find(item => item.region === region);
@@ -190,6 +189,13 @@ const getMedian = function (arr) {
 YANTRA.regionDiscovery = {
 
   async getRegionLatency(regionData) {
+
+    if (typeof game !== 'undefined' && typeof game.emit === 'function') {
+      game.emit('server::discovery::message', { message: 'Performing Ping Test: ' + regionData.region });
+    } else {
+      console.log('Warning: Attempting to emit "server::discovery::message" but game.emit was not found. Make sure to create a game instance before calling this function.')
+    }
+
     return new Promise((resolve) => {
       const latencies = [];
       let start1, start2, start3;
@@ -236,12 +242,27 @@ YANTRA.regionDiscovery = {
   },
 
   async findFastestRegion() {
+
+    if (typeof game !== 'undefined' && typeof game.emit === 'function') {
+      game.emit('server::discovery::message', { message: 'Finding Fastest Region' });
+    }
+
     try {
       const latencyResults = await Promise.all(updateRegionList.map(regionInfo => {
         return this.getRegionLatency(regionInfo);
       }));
 
       const sortedResults = latencyResults.sort((a, b) => a.latency - b.latency);
+
+      if (typeof game !== 'undefined' && typeof game.emit === 'function') {
+        sortedResults.forEach(result => {
+          game.emit('server::discovery::pingtest', { region: result.region, latency: result.latency});
+        });
+        game.emit('server::discovery::message', { message: 'Found fastest region: ' + sortedResults[0].region});
+      } else {
+        console.log('Warning: Attempting to emit "server::discovery::pingtest" but game.emit was not found. Make sure to create a game instance before calling this function.')
+      }
+
       return sortedResults[0].region; // Returns the region with the lowest latency
     } catch (error) {
       console.error('Error in finding fastest region:', error);

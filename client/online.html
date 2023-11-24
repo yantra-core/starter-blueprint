@@ -45,7 +45,17 @@
       game.use(new Plugins.SnapshotSize());
 
       //game.connect('wss://ayyo.cloudflare1973.workers.dev/websocket');  // cloudflare production
-      game.connect('ws://127.0.0.1:8888/websocket'); 
+      // get the current host and port from the browser
+      let host = window.location.hostname;
+      let port = window.location.port;
+      if (port == 7777) { // dev mode
+        port = 8888;
+      }
+      // detect if browser is https or http
+      let protocol = window.location.protocol;
+      // create a new wsConnectionString using the host and port and protocol
+      let wsConnectionString = `${protocol === 'https:' ? 'wss' : 'ws'}://${host}:${port}/websocket`;
+      game.connect(wsConnectionString); 
      
     });
   </script>
